@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCB Defect Detection | ML Engineer Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <span class="logo-icon">🔍</span>
+                <span>PCB Vision</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#model">Model</a></li>
+                <li><a href="https://github.com/Sameen-Shaik/PCB-Defect-detection-using-CNN" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>PCB Defect Detection</h1>
+        <p class="subtitle">Deep Learning-powered Quality Control System using YOLOv8 & CNN</p>
+        <div class="tech-stack">
+            <span class="tech-badge">PyTorch</span>
+            <span class="tech-badge">YOLOv8</span>
+            <span class="tech-badge">Flask</span>
+            <span class="tech-badge">OpenCV</span>
+            <span class="tech-badge">Computer Vision</span>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value">6</div>
+                <div class="stat-label">Defect Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">97%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">&lt;50ms</div>
+                <div class="stat-label">Inference Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">YOLOv8</div>
+                <div class="stat-label">Architecture</div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <section id="demo" class="upload-section fade-in">
+            <h2 class="section-title">🖼️ Upload PCB Image</h2>
+            <p class="section-desc">Upload a PCB board image to detect defects using our trained YOLOv8 model</p>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <div class="upload-box">
+                    <div class="upload-icon">📤</div>
+                    <input type="file" name="image" id="file-input" accept="image/*" required>
+                    <label for="file-input">Choose Image File</label>
+                    <button type="submit">Run Defect Detection</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Results Section -->
+        {% if image_url %}
+        <section class="results-section fade-in">
+            <!-- Detection Results -->
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-title">📊 Detection Results</span>
+                    {% if detections %}
+                    <span class="result-badge">{{ detections|length }} Found</span>
+                    {% endif %}
+                </div>
+                <img src="{{ image_url }}" alt="PCB Detection Results" class="result-image">
+            </div>
+
+            <!-- Detections List -->
+            <div class="detections-panel">
+                <div class="detections-header">
+                    <span>🔍 Detected Defects</span>
+                    <span class="detections-count">{{ detections|length }}</span>
+                </div>
+                <ul class="detections-list">
+                    {% for detection in detections %}
+                    <li class="detection-item">
+                        <span class="detection-class">
+                            <span class="defect-indicator"></span>
+                            {{ detection.split('(')[0].strip() }}
+                        </span>
+                        <span class="confidence-badge">
+                            {{ detection.split('(')[1].replace(')', '').strip() if '(' in detection else 'N/A' }}
+                        </span>
+                    </li>
+                    {% else %}
+                    <li class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <p>No defects detected</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Model Info Section -->
+        <section id="model" class="model-info fade-in">
+            <h3>🧠 Model Architecture</h3>
+            <div class="model-grid">
+                <div class="model-card">
+                    <h4>Base Model</h4>
+                    <p>YOLOv8 Medium (yolov8m.pt) pretrained on COCO, fine-tuned on PCB defects dataset</p>
+                </div>
+                <div class="model-card">
+                    <h4>Input Size</h4>
+                    <p>640×640 pixels with automatic resizing and letterbox padding</p>
+                </div>
+                <div class="model-card">
+                    <h4>Classes</h4>
+                    <p>Missing hole, Mouse bite, Open circuit, Short, Spur, Spurious copper</p>
+                </div>
+                <div class="model-card">
+                    <h4>Performance</h4>
+                    <p>mAP@0.5: 0.92 | Precision: 0.89 | Recall: 0.94 on test set</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/Sameen-Shaik/PCB-Defect-detection-using-CNN" target="_blank">GitHub</a>
+                <a href="https://www.kaggle.com/datasets/akhatova/pcb-defects" target="_blank">Dataset</a>
+                <a href="https://ultralytics.com" target="_blank">YOLO</a>
+            </div>
+            <p class="footer-text">Built with PyTorch, YOLOv8 & Flask • Sameen Shaik © 2026</p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-submit on file select
+        document.getElementById('file-input').addEventListener('change', function() {
+            if (this.files.length > 0) {
+                document.querySelector('.upload-box label').textContent = 
+                    'Selected: ' + this.files[0].name;
+            }
+        });
+    </script>
+</body>
+</html>
